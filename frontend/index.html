@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flight Verifier</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f5f7fb;
+    color: #172033;
+}
+
+.header {
+    background: linear-gradient(135deg, #2563eb, #9333ea, #ec4899);
+    color: white;
+    padding: 32px 44px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 34px;
+    font-weight: 800;
+}
+
+.subtitle {
+    margin-top: 8px;
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+.badge {
+    background: rgba(255,255,255,0.2);
+    padding: 14px 24px;
+    border-radius: 30px;
+    font-weight: 700;
+}
+
+.container {
+    max-width: 1180px;
+    margin: 32px auto;
+    padding: 0 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+    margin-bottom: 24px;
+}
+
+.center {
+    text-align: center;
+}
+
+.upload-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 28px;
+}
+
+.upload-box {
+    border: 2px dashed #93c5fd;
+    background: #f8fbff;
+    border-radius: 18px;
+    padding: 30px;
+}
+
+.upload-box.aadhaar {
+    border-color: #22c55e;
+    background: #f0fdf4;
+}
+
+.upload-box h3 {
+    font-size: 24px;
+    margin-top: 0;
+}
+.drop-zone {
+    margin-top: 20px;
+    padding: 28px;
+    border: 2px dashed #94a3b8;
+    border-radius: 16px;
+    background: white;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.drop-zone:hover {
+    border-color: #6366f1;
+    background: #f8fafc;
+    transform: translateY(-2px);
+}
+
+.drop-zone.dragover {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+
+.upload-box.aadhaar .drop-zone.dragover {
+    border-color: #22c55e;
+    background: #ecfdf5;
+}
+
+.drop-icon {
+    font-size: 38px;
+    margin-bottom: 10px;
+}
+
+.drop-text {
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.drop-text span {
+    color: #64748b;
+}
+
+.file-name {
+    margin-top: 14px;
+    font-weight: 800;
+    color: #64748b;
+}
+
+.file-name.selected {
+    color: #16a34a;
+}
+
+input[type="file"] {
+    margin-top: 20px;
+    width: 100%;
+    padding: 14px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+}
+
+.verify-btn {
+    margin-top: 32px;
+    width: 45%;
+    padding: 16px;
+    border: none;
+    border-radius: 16px;
+    color: white;
+    font-size: 19px;
+    font-weight: 800;
+    cursor: pointer;
+    background: linear-gradient(135deg, #2563eb, #9333ea, #ec4899);
+    box-shadow: 0 9px 20px rgba(147,51,234,0.35);
+}
+
+.download-btn {
+    margin-top: 16px;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 14px;
+    color: white;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    box-shadow: 0 8px 18px rgba(34,197,94,0.35);
+}
+
+.verify-btn:hover,
+.download-btn:hover {
+    transform: translateY(-1px);
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+}
+
+.summary-card {
+    padding: 24px;
+    border-radius: 18px;
+    font-weight: 800;
+}
+
+.green {
+    background: #ecfdf5;
+    border: 1px solid #86efac;
+    color: #15803d;
+}
+
+.yellow {
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    color: #b45309;
+}
+
+.red {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #b91c1c;
+}
+
+.summary-number {
+    font-size: 42px;
+    margin: 10px 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 18px;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+th {
+    background: linear-gradient(135deg, #4f46e5, #c026d3);
+    color: white;
+    padding: 15px;
+    text-align: left;
+}
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+}
+
+.status-pill {
+    padding: 8px 14px;
+    border-radius: 20px;
+    display: inline-block;
+    font-weight: 800;
+}
+
+.loading {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: #4f46e5;
+}
+
+.footer {
+    text-align: center;
+    color: white;
+    padding: 18px;
+    background: linear-gradient(135deg, #2563eb, #9333ea);
+    margin-top: 40px;
+}
+
+@media(max-width: 800px) {
+    .header {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+
+    .upload-grid,
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .verify-btn {
+        width: 100%;
+    }
+
+    .download-btn {
+        width: 100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div>
+        <div class="logo">✈️ Flight Verifier</div>
+        <div class="subtitle">OCR Based Aadhaar & Ticket Name Verification</div>
+    </div>
+    <div class="badge">🛡️ Secure • Fast • Local</div>
+</div>
+
+<div class="container">
+
+    <div class="card center">
+        <h2>📤 Upload ZIP Files</h2>
+        <p>Upload Aadhaar ZIP and Ticket ZIP to start verification</p>
+
+        <div class="upload-grid">
+            <div class="upload-box aadhaar">
+                <h3>🆔 Aadhaar ZIP</h3>
+                <p>Upload ZIP containing Aadhaar images/PDFs</p>
+                <div class="drop-zone" id="aadhaar-drop">
+    <div class="drop-icon">📂</div>
+
+    <div class="drop-text">
+        <strong>Drag & Drop Aadhaar ZIP</strong>
+        <br>
+        <span>or Click to Browse</span>
+    </div>
+
+    <input type="file" id="aadhaar" accept=".zip" hidden>
+
+    <div class="file-name" id="aadhaar-name">
+        No file selected
+    </div>
+</div>
+            </div>
+
+            <div class="upload-box">
+                <h3>🎫 Ticket ZIP</h3>
+                <p>Upload ZIP containing flight ticket PDFs</p>
+                <div class="drop-zone" id="ticket-drop">
+    <div class="drop-icon">🎫</div>
+
+    <div class="drop-text">
+        <strong>Drag & Drop Ticket ZIP</strong>
+        <br>
+        <span>or Click to Browse</span>
+    </div>
+
+    <input type="file" id="ticket" accept=".zip" hidden>
+
+    <div class="file-name" id="ticket-name">
+        No file selected
+    </div>
+</div>
+            </div>
+        </div>
+
+        <button class="verify-btn" onclick="verifyFiles()">🚀 VERIFY NOW</button>
+        <br>
+        <button class="download-btn" onclick="downloadReport()">📊 Download Excel Report</button>
+    </div>
+
+    <div id="result"></div>
+
+</div>
+
+<div class="footer">
+    © 2026 Flight Verifier • Built using FastAPI & OCR
+</div>
+
+<script>
+function setupDropZone(dropId, inputId, nameId) {
+    const dropZone = document.getElementById(dropId);
+    const input = document.getElementById(inputId);
+    const fileName = document.getElementById(nameId);
+
+    dropZone.addEventListener("click", () => input.click());
+
+    input.addEventListener("change", () => {
+        if (input.files.length > 0) {
+            fileName.textContent = "✅ " + input.files[0].name;
+            fileName.classList.add("selected");
+        }
+    });
+
+    dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("dragover");
+    });
+
+    dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("dragover");
+    });
+
+    dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+
+        if (!file.name.toLowerCase().endsWith(".zip")) {
+            alert("Only ZIP files are allowed.");
+            return;
+        }
+
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        input.files = dataTransfer.files;
+
+        fileName.textContent = "✅ " + file.name;
+        fileName.classList.add("selected");
+    });
+}
+
+setupDropZone("aadhaar-drop", "aadhaar", "aadhaar-name");
+setupDropZone("ticket-drop", "ticket", "ticket-name");
+
+async function verifyFiles() {
+    const aadhaar = document.getElementById("aadhaar").files[0];
+    const ticket = document.getElementById("ticket").files[0];
+
+    if (!aadhaar || !ticket) {
+        alert("Please upload both Aadhaar ZIP and Ticket ZIP");
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("aadhaar_zip", aadhaar);
+    formData.append("ticket_zip", ticket);
+
+    document.getElementById("result").innerHTML =
+        `<div class="card loading">Processing files... Please wait ⏳</div>`;
+
+    const response = await fetch("http://127.0.0.1:8000/verify", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+
+    let html = `
+        <div class="card">
+            <h2>📊 Verification Summary</h2>
+            <div class="summary-grid">
+                <div class="summary-card green">
+                    <div>🟢 GREEN</div>
+                    <div class="summary-number">${data.green}</div>
+                    <div>High confidence matches</div>
+                </div>
+
+                <div class="summary-card yellow">
+                    <div>🟡 YELLOW</div>
+                    <div class="summary-number">${data.yellow}</div>
+                    <div>Manual review suggested</div>
+                </div>
+
+                <div class="summary-card red">
+                    <div>🔴 RED</div>
+                    <div class="summary-number">${data.red}</div>
+                    <div>Mismatch or low confidence</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📋 Detailed Results</h2>
+            <table>
+                <tr>
+                    <th>#</th>
+                    <th>Ticket Name</th>
+                    <th>Aadhaar Name</th>
+                    <th>Confidence</th>
+                    <th>Status</th>
+                </tr>
+    `;
+
+    data.results.forEach((row, index) => {
+        let className = row.status === "GREEN" ? "green" :
+                        row.status === "YELLOW" ? "yellow" : "red";
+
+        let dot = row.status === "GREEN" ? "🟢" :
+                  row.status === "YELLOW" ? "🟡" : "🔴";
+
+        html += `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${row.ticket_name}</td>
+                <td>${row.aadhaar_name}</td>
+                <td>${row.confidence}%</td>
+                <td><span class="status-pill ${className}">${dot} ${row.status}</span></td>
+            </tr>
+        `;
+    });
+
+    html += `
+            </table>
+        </div>
+    `;
+
+    document.getElementById("result").innerHTML = html;
+}
+
+function downloadReport() {
+    window.open("http://127.0.0.1:8000/download-report", "_blank");
+}
+</script>
+
+</body>
+</html>
